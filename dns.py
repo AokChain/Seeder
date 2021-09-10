@@ -20,5 +20,6 @@ def wildcard_example(query):
 
 
 if __name__ == "__main__":
+    ns.settings.SERVER_ADDRESS = "0.0.0.0"
     ns.settings.SERVER_PORT = 9001
     ns.run()
