@@ -10,7 +10,7 @@ def wildcard_example(query):
 
     with orm.db_session:
         seeds = Peer.select(
-            lambda p: p.visits_missed == 0
+            lambda p: p.visits_missed == 0 and p.user_agent is not None
         ).random(20)
 
         for peer in seeds:

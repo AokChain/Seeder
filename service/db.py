@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from .models import Peer
 from .node import Node
 from pony import orm
+import re
 
 INTERVAL = timedelta(minutes=10)
 
@@ -11,7 +12,11 @@ def insert_nodes(nodes):
 
     for node in nodes:
         if not Peer.get(address=node.ip):
-            Peer(address=node.ip, port=node.port)
+            peer = Peer(address=node.ip, port=node.port)
+
+            if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", peer.address):
+                peer.ipv4 = True
+
             total += 1
 
     print(f"Added {total} nodes")
