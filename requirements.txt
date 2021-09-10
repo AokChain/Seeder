@@ -1,0 +1,13 @@
+certifi==2021.5.30
+charset-normalizer==2.0.4
+dnslib==0.9.16
+filelock==3.0.12
+idna==3.2
+nserver==0.2.0
+pony==0.7.14
+PySocks==1.6.8
+requests==2.26.0
+requests-file==1.5.1
+six==1.16.0
+tldextract==3.1.2
+urllib3==1.26.6
