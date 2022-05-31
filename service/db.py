@@ -28,6 +28,7 @@ def update_nodes(nodes):
         peer.next_visit = node.next_visit
         peer.visits_missed = node.visits_missed
         peer.user_agent = node.user_agent
+        peer.last_seen = datetime.utcnow()
 
 @orm.db_session
 def next_nodes(n):
