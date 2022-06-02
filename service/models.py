@@ -18,8 +18,8 @@ class Peer(db.Entity):
     country = orm.Optional(str, nullable=True)
     country_code = orm.Optional(str, nullable=True)
     city = orm.Optional(str, nullable=True)
-    latitude = orm.Optional(Decimal, precision=20, scale=8, nullable=True)
-    longitude = orm.Optional(Decimal, precision=20, scale=8, nullable=True)
+    latitude = orm.Optional(float, nullable=True)
+    longitude = orm.Optional(float, nullable=True)
 
 
 
