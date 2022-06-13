@@ -1,7 +1,7 @@
-from .connection import Connection
+from .crawler.connection import Connection
+from .crawler.net import ProtocolError
+from .crawler.net import init_db
 from multiprocessing import Pool
-from .net import ProtocolError
-from .net import init_db
 from . import utils
 
 def process_node(node):
@@ -32,3 +32,4 @@ def crawl_nodes():
 
     utils.process_outputs(result)
     utils.assign_country()
+    utils.build_chart()

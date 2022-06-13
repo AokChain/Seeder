@@ -6,7 +6,6 @@ import socket
 import config
 import time
 
-# NETWORK_MAGIC = b"\x3b\xee\xe0\x02"
 NETWORK_MAGIC = bytes.fromhex(config.magic)
 
 IPV4_PREFIX = b"\x00" * 10 + b"\xff" * 2

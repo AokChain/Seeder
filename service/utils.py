@@ -1,13 +1,35 @@
 from datetime import datetime, timedelta
+from .crawler.node import Node
 from datetime import datetime
 from requests import Session
+from .models import PeerTick
 from .models import Peer
-from .node import Node
 from pony import orm
 import config
 import re
 
 INTERVAL = timedelta(**config.interval)
+
+def round_day(created):
+    return created - timedelta(
+        days=created.day % 1,
+        hours=created.hour,
+        minutes=created.minute,
+        seconds=created.second,
+        microseconds=created.microsecond
+    )
+
+@orm.db_session
+def build_chart():
+    timestamp = round_day(datetime.utcnow())
+
+    if not (tick := PeerTick.get(timestamp=timestamp)):
+        tick = PeerTick(timestamp=timestamp)
+
+    tick.known = Peer.select().count()
+    tick.active = Peer.select(
+        lambda p: p.user_agent is not None and p.visits_missed < 3
+    ).count()
 
 @orm.db_session
 def insert_nodes(nodes):
@@ -53,12 +75,14 @@ def process_outputs(result):
             insert_nodes_args.append(node)
 
         if conn["peer_version_payload"]:
-            conn["node"].next_visit = datetime.utcnow() + INTERVAL
             conn["node"].visits_missed = 0
+            conn["node"].next_visit = datetime.utcnow() + INTERVAL
 
         else:
-            conn["node"].next_visit = datetime.utcnow() + (2 * conn["node"].visits_missed * INTERVAL)
             conn["node"].visits_missed += 1
+            conn["node"].next_visit = datetime.utcnow() + (
+                2 * conn["node"].visits_missed * INTERVAL
+            )
 
         update_nodes_args.append(conn["node"])
 
