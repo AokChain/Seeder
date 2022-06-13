@@ -101,6 +101,11 @@ def assign_country():
     for peer in peers:
         print(f"Looking up country of {peer.address}")
         req = session.get("https://geolocation-db.com/json/" + peer.address).json()
+
+        if req["country_name"] == "Not found":
+            peer.country = req["country_name"]
+            continue
+
         peer.country = req["country_name"]
         peer.country_code = req["country_code"]
         peer.city = req["city"]
