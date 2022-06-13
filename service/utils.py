@@ -99,6 +99,7 @@ def assign_country():
     peers = Peer.select(lambda p: p.country is None)
 
     for peer in peers:
+        print(f"Looking up country of {peer.address}")
         req = session.get("https://geolocation-db.com/json/" + peer.address).json()
         peer.country = req["country_name"]
         peer.country_code = req["country_code"]
