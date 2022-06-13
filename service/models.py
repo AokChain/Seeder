@@ -1,11 +1,13 @@
 from datetime import datetime
-from decimal import Decimal
 from pony import orm
+import config
 
 db = orm.Database()
-db.bind(provider="sqlite", filename="../seed.db", create_db=True)
+db.bind(**config.db)
 
 class Peer(db.Entity):
+    _table_ = "service_peers"
+
     created = orm.Required(datetime, default=datetime.utcnow)
     next_visit = orm.Required(datetime, default=datetime.utcnow)
     last_seen = orm.Required(datetime, default=datetime.utcnow)
@@ -20,7 +22,6 @@ class Peer(db.Entity):
     city = orm.Optional(str, nullable=True)
     latitude = orm.Optional(float, nullable=True)
     longitude = orm.Optional(float, nullable=True)
-
 
 
 db.generate_mapping(create_tables=True)

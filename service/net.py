@@ -1,14 +1,13 @@
-# Based on https://github.com/justinmoon/crawler
-
 from base64 import b32decode, b32encode
 from random import randint
 from .node import Node
 import hashlib
 import socket
-import socks
+import config
 import time
 
-NETWORK_MAGIC = b"\x3b\xee\xe0\x02"
+# NETWORK_MAGIC = b"\x3b\xee\xe0\x02"
+NETWORK_MAGIC = bytes.fromhex(config.magic)
 
 IPV4_PREFIX = b"\x00" * 10 + b"\xff" * 2
 ONION_PREFIX = b"\xFD\x87\xD8\x7E\xEB\x43"  # ipv6 prefix for .onion address
@@ -165,27 +164,12 @@ def serialize_msg(command, payload=b""):
     return result
 
 def create_connection(address, timeout=10):
-    if "onion" in address[0]:
-        return socks.create_connection(
-            address,
-            timeout=timeout,
-            proxy_type=socks.PROXY_TYPE_SOCKS5,
-            proxy_addr="127.0.0.1",
-            proxy_port=9050
-        )
+    return socket.create_connection(address, timeout=timeout)
 
-    else:
-        return socket.create_connection(address, timeout=timeout)
-
-def dns_seeds():
+def init_db():
     nodes = []
-    nodes.append(Node(*("210.105.193.5", 33441)))
-    nodes.append(Node(*("210.105.193.11", 33441)))
-    nodes.append(Node(*("210.105.193.12", 33441)))
-    nodes.append(Node(*("210.105.193.13", 33441)))
-    nodes.append(Node(*("210.105.193.14", 33441)))
-    nodes.append(Node(*("210.105.193.17", 33441)))
-    nodes.append(Node(*("210.105.193.18", 33441)))
-    nodes.append(Node(*("210.105.193.21", 33441)))
+
+    for node in config.init:
+        nodes.append(Node(*(node[0], node[1])))
 
     return nodes

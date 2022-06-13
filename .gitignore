@@ -6,3 +6,6 @@ config.py
 
 # misc
 .DS_STORE
+
+# Text editors
+.vscode/

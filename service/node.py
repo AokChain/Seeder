@@ -12,5 +12,9 @@ class Node:
         self.user_agent = user_agent
 
     @property
+    def display(self):
+        return f"{self.ip}:{self.port}"
+
+    @property
     def address(self):
         return (self.ip, self.port)

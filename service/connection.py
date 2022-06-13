@@ -1,12 +1,6 @@
-# Based on https://github.com/justinmoon/crawler
-
 from datetime import datetime, timedelta
 from .node import Node
 from . import net
-from . import db
-import threading
-import queue
-import time
 import io
 
 class Connection:
@@ -91,93 +85,3 @@ class Connection:
         # Clean up socket"s file descriptor
         if self.sock:
             self.sock.close()
-
-
-class Worker(threading.Thread):
-
-    def __init__(self, worker_inputs, worker_outputs, timeout):
-        super().__init__()
-        self.worker_inputs = worker_inputs
-        self.worker_outputs = worker_outputs
-        self.timeout = timeout
-
-    def run(self):
-        while True:
-            # Get next node and connect
-            node = self.worker_inputs.get()
-
-            try:
-                conn = Connection(node, timeout=self.timeout)
-                conn.open()
-
-            except (OSError, net.ProtocolError):
-                pass
-
-            finally:
-                conn.close()
-
-            # Report results back to the crawler
-            self.worker_outputs.put(conn)
-
-
-class Crawler:
-    def __init__(self, num_workers=10, timeout=10):
-        self.timeout = timeout
-        self.worker_inputs = queue.Queue()
-        self.worker_outputs = queue.Queue()
-        self.workers = [
-            Worker(self.worker_inputs, self.worker_outputs, timeout)
-            for _ in range(num_workers)
-        ]
-
-    @property
-    def batch_size(self):
-        return len(self.workers) * 10
-
-    def add_worker_inputs(self):
-        nodes = db.next_nodes(self.batch_size)
-        for node in nodes:
-            self.worker_inputs.put(node)
-
-    def process_worker_outputs(self):
-        # Get connections from output queue
-        conns = []
-        while self.worker_outputs.qsize():
-            conns.append(self.worker_outputs.get())
-
-        # Flush connection outputs to DB
-        db.process_crawler_outputs(conns)
-
-    def seed_db(self):
-        db.insert_nodes(net.dns_seeds())
-
-    def main_loop(self):
-        loops = 0
-        while True:
-            if loops % 100:
-                print(f"Running crawler {loops}")
-
-            # Fill input queue if running low
-            if self.worker_inputs.qsize() < self.batch_size:
-                self.add_worker_inputs()
-
-            # Process worker outputs if running high
-            if self.worker_outputs.qsize() > self.batch_size:
-                self.process_worker_outputs()
-
-            # Only check once per second
-            time.sleep(1)
-
-    def crawl(self):
-        # Seed database with initial nodes from DNS seeds
-        self.seed_db()
-
-        # Add to worker inputs
-        self.add_worker_inputs()
-
-        # Start workers
-        for worker in self.workers:
-            worker.start()
-
-        # Manage workers until program ends
-        self.main_loop()

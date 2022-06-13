@@ -1,9 +1,9 @@
 from apscheduler.schedulers.blocking import BlockingScheduler
-from service.sync import assign_country
+from service.sync import crawl_nodes
 
 if __name__ == "__main__":
     scheduler = BlockingScheduler()
 
-    scheduler.add_job(assign_country, "interval", seconds=10)
+    scheduler.add_job(crawl_nodes, "interval", minutes=5)
 
     scheduler.start()
