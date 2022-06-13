@@ -99,9 +99,9 @@ def assign_country():
     peers = Peer.select(lambda p: p.country is None)
 
     for peer in peers:
-        req = session.get("http://ip-api.com/json/" + peer.address).json()
-        peer.country = req["country"]
-        peer.country_code = req["countryCode"]
+        req = session.get("https://geolocation-db.com/json/" + peer.address).json()
+        peer.country = req["country_name"]
+        peer.country_code = req["country_code"]
         peer.city = req["city"]
-        peer.latitude = req["lat"]
-        peer.longitude = req["lon"]
+        peer.latitude = req["latitude"]
+        peer.longitude = req["longitude"]
